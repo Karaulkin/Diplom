@@ -57,11 +57,20 @@ void ParserJson::recursive_iterate(const json& j, BinaryFunction f, const std::s
             //*FilleNameTxt << key << " =" << begin << '\n';
             //std::string key = it.key();
 
+            bool alotLevels = true;
+
+            if ((*it)[0].is_primitive()) {
+                alotLevels = false;
+                *FilleNameTxt << it.key() << " =" << begin << '\n';
+            }
+
             if (it->size() > 1) {
-                // TODO: flag на то что имеются в массиве простые или сложные структуры
+
                 for (size_t i = 0; i < it->size(); ++i)
                 {
-                    *FilleNameTxt << it.key() << "[" << std::to_string(i+1) << "] =" << begin << '\n';
+                    if (alotLevels) {
+                        *FilleNameTxt << it.key() << "[" << std::to_string(i+1) << "] =" << begin << '\n';
+                    }
 
                     //recursive_iterate((*it)[i], f, it.key());
                     // recursive_iterate((*it)[i], f, "simple_array");
@@ -70,13 +79,13 @@ void ParserJson::recursive_iterate(const json& j, BinaryFunction f, const std::s
                         recursive_iterate((*it)[i], f, "hard_array");
                     }
 
-                    if (it->at(i).is_primitive()) {
+                    if ((*it)[i].is_primitive()) {
                         recursive_iterate((*it)[i], f, "simple_array");
                     }
 
-
-
-                    *FilleNameTxt << end << '\n';
+                    if (alotLevels) {
+                        *FilleNameTxt << end << '\n';
+                    }
                 }
             } else {
                 *FilleNameTxt << it.key() << " =" << begin << '\n';
@@ -87,7 +96,9 @@ void ParserJson::recursive_iterate(const json& j, BinaryFunction f, const std::s
 
                 *FilleNameTxt << end << '\n';
             }
-            //*FilleNameTxt << end << '\n';
+            if (alotLevels == false) {
+                *FilleNameTxt << end << '\n';
+            }
         }
         else
         {
